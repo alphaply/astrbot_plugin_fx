@@ -16,6 +16,9 @@ _MARKET_CURRENCY = {
 
 _PRIMARY_CLASSIFIES = {"AStock", "UsStock", "HK", "Index", "UniversalIndex"}
 _DERIVATIVE_KEYWORDS = ("etf", "期权", "做多", "做空", "收益策略", "购", "沽", "牛", "熊")
+_SHORT_NAMES = {
+    "英国富时100": "富时100",
+}
 
 
 def _classify_eastmoney(item: dict) -> tuple[str, str]:
@@ -210,6 +213,7 @@ class EquityProvider:
             currency = _MARKET_CURRENCY.get(market, "")
             # For US stocks, ticker (AAPL) is more compact than Chinese name when user queries ticker
             display_name = code if (market == "us" and code.isascii() and code.isalpha()) else name
+            display_name = _SHORT_NAMES.get(display_name, display_name)
 
             return QuoteResult(
                 symbol=code,

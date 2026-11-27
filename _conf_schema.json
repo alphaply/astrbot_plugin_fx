@@ -59,11 +59,11 @@
     "options": ["plain", "markdown_table", "markdown_list"],
     "labels": [
       "纯文本紧凑模式（默认，全平台兼容）",
-      "Markdown 表格模式（推荐 QQ 官方机器人）",
-      "Markdown 列表卡片模式（窄屏友好）"
+      "Markdown 精简表格（3列紧凑，来源置底）",
+      "Markdown 列表卡片（推荐 QQ 手机端，不换行不裁切）"
     ],
     "default": "plain",
-    "hint": "QQ 官方机器人等支持 Markdown 渲染的平台可切换为 Markdown 表格或列表模式"
+    "hint": "QQ 官方机器人手机端推荐选择「Markdown 列表卡片」或「Markdown 精简表格」"
   },
   "proxy": {
     "description": "HTTP/HTTPS 代理地址（可选）",
