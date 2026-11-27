@@ -206,11 +206,33 @@ class WatchlistStorage:
                     break
 
             q_clean_lower = q_clean.lower()
+            alias = BUILTIN_ALIASES.get(q_clean_lower)
+            alias_symbol = ""
+            alias_quote_id = ""
+            alias_name = ""
+            if alias is not None:
+                a_target, a_market, a_third = alias
+                if a_market == "crypto":
+                    alias_symbol = a_target.lower()
+                else:
+                    alias_quote_id = a_target.lower()
+                    alias_symbol = a_target.split(".", 1)[-1].lower()
+                    alias_name = a_third.lower()
+
             matched_indices: list[int] = []
             for idx, item in enumerate(existing):
-                sym_match = item.symbol.lower() == q_clean_lower
-                name_match = item.display_name.lower() == q_clean_lower or item.display_name.lower() == q_lower
-                if not (sym_match or name_match):
+                item_sym = item.symbol.lower()
+                item_name = item.display_name.lower()
+                item_qid = item.quote_id.lower()
+
+                sym_match = item_sym == q_clean_lower or (bool(alias_symbol) and item_sym == alias_symbol)
+                name_match = (
+                    item_name == q_clean_lower
+                    or item_name == q_lower
+                    or (bool(alias_name) and item_name == alias_name)
+                )
+                qid_match = bool(alias_quote_id) and item_qid == alias_quote_id
+                if not (sym_match or name_match or qid_match):
                     continue
                 if want_perp and item.contract_type != "perp":
                     continue
