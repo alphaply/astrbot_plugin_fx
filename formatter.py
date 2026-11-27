@@ -139,6 +139,17 @@ def _collect_notes(
     return notes
 
 
+def _pick_heading_emoji(quotes: list[QuoteResult]) -> str:
+    if not quotes:
+        return "📊"
+    avg = sum(q.change_pct for q in quotes) / len(quotes)
+    if avg > 0:
+        return "📈"
+    if avg < 0:
+        return "📉"
+    return "📊"
+
+
 def format_quote_list(
     quotes: list[QuoteResult],
     color_style: str = "cn",
@@ -150,7 +161,7 @@ def format_quote_list(
 ) -> str:
     if output_format == "markdown_table":
         notes = _collect_notes(quotes, errors, include_sources=show_source)
-        heading = f"### 📈 {title.strip() or '实时行情'}"
+        heading = f"### {_pick_heading_emoji(quotes)} {title.strip() or '实时行情'}"
         rows = [
             heading,
             "",
@@ -171,7 +182,7 @@ def format_quote_list(
 
     if output_format == "markdown_list":
         notes = _collect_notes(quotes, errors, include_sources=show_source)
-        heading = f"### 📈 {title.strip() or '实时行情'}"
+        heading = f"### {_pick_heading_emoji(quotes)} {title.strip() or '实时行情'}"
         rows = [heading, ""]
         for q in quotes:
             label = format_label(q.display_name, q.market, q.contract_type)
