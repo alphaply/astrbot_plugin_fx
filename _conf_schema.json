@@ -1,0 +1,68 @@
+{
+  "command_keyword": {
+    "description": "触发关键词指令",
+    "type": "string",
+    "default": "fx",
+    "hint": "同时匹配直接输入（如 fx）或斜杠前缀（如 /fx），忽略大小写"
+  },
+  "enable_llm_fallback": {
+    "description": "机械查询失败时启用 LLM 辅助识别",
+    "type": "bool",
+    "default": true,
+    "hint": "例如输入「fx 数字黄金」时，若机械接口未命中，交由大模型解析为标准标的（如 BTC）后查询行情"
+  },
+  "llm_provider_id": {
+    "description": "标的辅助查询 LLM Provider",
+    "type": "string",
+    "default": "",
+    "_special": "select_provider",
+    "hint": "选择用于辅助识别模糊标的的大模型提供商；留空则不调用 LLM 辅助"
+  },
+  "default_watchlist": {
+    "description": "新用户默认自选清单",
+    "type": "list",
+    "default": ["BTC", "标普500", "纳斯达克", "沪深300", "恒生指数", "日经225", "富时100"],
+    "hint": "首次使用时自动初始化的默认自选标的列表"
+  },
+  "watchlist_scope": {
+    "description": "自选清单隔离粒度",
+    "type": "string",
+    "options": ["user", "session", "global"],
+    "labels": [
+      "按用户区分（跨群全局同步）",
+      "按群聊/私聊会话独立",
+      "全机器人全局共享"
+    ],
+    "default": "user",
+    "hint": "默认按发送者用户 ID 区分，同一用户在不同群和私聊共用同一份自选清单"
+  },
+  "color_style": {
+    "description": "涨跌颜色风格",
+    "type": "string",
+    "options": ["cn", "us"],
+    "labels": [
+      "红涨绿跌 (🔴涨 🟢跌)",
+      "绿涨红跌 (🟢涨 🔴跌)"
+    ],
+    "default": "cn",
+    "hint": "支持国内红涨绿跌与美股/币圈绿涨红跌切换"
+  },
+  "show_source": {
+    "description": "显示行情数据来源",
+    "type": "bool",
+    "default": true,
+    "hint": "在每条行情末尾附加来源标注（如 [OKX]、[东财]）"
+  },
+  "proxy": {
+    "description": "HTTP/HTTPS 代理地址（可选）",
+    "type": "string",
+    "default": "",
+    "hint": "如 http://127.0.0.1:7890；若服务器直连海外加密接口受限可配置"
+  },
+  "request_timeout": {
+    "description": "行情请求超时时间（秒）",
+    "type": "int",
+    "default": 10,
+    "hint": "单次行情 HTTP 请求超时秒数"
+  }
+}
