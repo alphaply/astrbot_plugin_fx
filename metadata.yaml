@@ -2,6 +2,6 @@ name: astrbot_plugin_fx
 display_name: FX 多市场行情助手
 short_desc: 加密货币/A股/港股/美股/指数免费实时行情与自选管理
 desc: 支持加密货币（现货/合约）、A股、港股、美股及全球指数免费实时行情查询、按用户独立自选清单管理与可选 LLM 辅助标的识别。
-version: 1.0.0
+version: 1.1.0
 author: alphaply
 repo: https://github.com/alphaply/astrbot_plugin_fx

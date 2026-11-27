@@ -51,6 +51,7 @@
 | `watchlist_scope` | `user` | 自选隔离粒度：`user`（按用户跨群全局同步）/ `session`（按会话独立）/ `global`（全机器人共享） |
 | `color_style` | `cn` | 涨跌颜色风格：`cn`（红涨绿跌 `🔴涨 🟢跌`）/ `us`（绿涨红跌 `🟢涨 🔴跌`） |
 | `show_source` | `true` | 是否在每条行情末尾附加数据来源标注（如 `[OKX]`、`[东财]`） |
+| `output_format` | `plain` | 消息输出格式：`plain`（纯文本紧凑）/ `markdown_table`（Markdown 表格，推荐 QQ 官方机器人）/ `markdown_list`（Markdown 列表卡片） |
 | `proxy` | `""` | 可选 HTTP/HTTPS 代理（如 `http://127.0.0.1:7890`） |
 | `request_timeout` | `10` | 单次行情 HTTP 请求超时时间（秒） |
 

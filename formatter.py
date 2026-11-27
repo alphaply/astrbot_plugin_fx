@@ -73,17 +73,11 @@ def format_quote_line(
     return line
 
 
-def format_quote_list(
-    quotes: list[QuoteResult],
-    color_style: str = "cn",
-    errors: list[str] | None = None,
-    show_source: bool = True,
-) -> str:
-    lines = [
-        format_quote_line(q, color_style=color_style, show_source=show_source)
-        for q in quotes
-    ]
+def _escape_md_cell(text: str) -> str:
+    return text.replace("|", "\\|").replace("\n", " ")
 
+
+def _collect_notes(quotes: list[QuoteResult], errors: list[str] | None) -> list[str]:
     ai_groups: dict[str, list[str]] = {}
     downgrade_notes: list[str] = []
     for q in quotes:
@@ -93,13 +87,77 @@ def format_quote_list(
         if q.downgraded_to_perp:
             downgrade_notes.append(q.display_name)
 
+    notes: list[str] = []
     for orig, targets in ai_groups.items():
         if len(targets) == 1:
-            lines.append(f"💡 AI识别: {orig} → {targets[0]}")
+            notes.append(f"💡 AI识别: {orig} → {targets[0]}")
         else:
-            lines.append(f"💡 AI识别「{orig}」→ {', '.join(targets)}")
+            notes.append(f"💡 AI识别「{orig}」→ {', '.join(targets)}")
     if downgrade_notes:
-        lines.append(f"ℹ️ 无现货，已自动切换合约: {', '.join(downgrade_notes)}")
+        notes.append(f"ℹ️ 无现货，已自动切换合约: {', '.join(downgrade_notes)}")
     if errors:
-        lines.append(f"⚠️ 未获取到行情: {', '.join(errors)}")
+        notes.append(f"⚠️ 未获取到行情: {', '.join(errors)}")
+    return notes
+
+
+def format_quote_list(
+    quotes: list[QuoteResult],
+    color_style: str = "cn",
+    errors: list[str] | None = None,
+    show_source: bool = True,
+    output_format: str = "plain",
+    title: str = "",
+) -> str:
+    notes = _collect_notes(quotes, errors)
+
+    if output_format == "markdown_table":
+        heading = f"### 📈 {title.strip() or '实时行情'}"
+        if show_source:
+            rows = [
+                heading,
+                "",
+                "| 标的 | 价格 | 涨跌 | 来源 |",
+                "| :--- | ---: | ---: | :---: |",
+            ]
+        else:
+            rows = [
+                heading,
+                "",
+                "| 标的 | 价格 | 涨跌 |",
+                "| :--- | ---: | ---: |",
+            ]
+        for q in quotes:
+            label = _escape_md_cell(format_label(q.display_name, q.market, q.contract_type))
+            price_str = _escape_md_cell(format_price(q.price, q.currency))
+            change_str = _escape_md_cell(format_change(q.change_pct, color_style=color_style))
+            if show_source:
+                src = _escape_md_cell(format_source_label(q.source) or "-")
+                rows.append(f"| **{label}** | `{price_str}` | {change_str} | {src} |")
+            else:
+                rows.append(f"| **{label}** | `{price_str}` | {change_str} |")
+        if notes:
+            rows.append("")
+            rows.extend(f"> {note}" for note in notes)
+        return "\n".join(rows)
+
+    if output_format == "markdown_list":
+        heading = f"### 📈 {title.strip() or '实时行情'}"
+        rows = [heading, ""]
+        for q in quotes:
+            label = format_label(q.display_name, q.market, q.contract_type)
+            price_str = format_price(q.price, q.currency)
+            change_str = format_change(q.change_pct, color_style=color_style)
+            src = format_source_label(q.source) if (show_source and q.source) else ""
+            suffix = f" · `{src}`" if src else ""
+            rows.append(f"- **{label}** `{price_str}` ({change_str}){suffix}")
+        if notes:
+            rows.append("")
+            rows.extend(f"> {note}" for note in notes)
+        return "\n".join(rows)
+
+    lines = [
+        format_quote_line(q, color_style=color_style, show_source=show_source)
+        for q in quotes
+    ]
+    lines.extend(notes)
     return "\n".join(lines)

@@ -97,6 +97,10 @@ class FxMarketPlugin(Star):
     def _get_show_source(self) -> bool:
         return bool(self.config.get("show_source", True))
 
+    def _get_output_format(self) -> str:
+        fmt = str(self.config.get("output_format") or "plain").strip().lower()
+        return fmt if fmt in ("plain", "markdown_table", "markdown_list") else "plain"
+
     def _get_scope_key(self, event: AstrMessageEvent) -> str:
         scope = str(self.config.get("watchlist_scope") or "user").strip().lower()
         if scope == "global":
@@ -185,6 +189,8 @@ class FxMarketPlugin(Star):
             color_style=self._get_color_style(),
             errors=errors or None,
             show_source=self._get_show_source(),
+            output_format=self._get_output_format(),
+            title="自选行情",
         )
 
     async def _handle_add(self, event: AstrMessageEvent, raw_targets: str) -> str:
@@ -278,6 +284,8 @@ class FxMarketPlugin(Star):
                     color_style=self._get_color_style(),
                     errors=errors or None,
                     show_source=self._get_show_source(),
+                    output_format=self._get_output_format(),
+                    title="实时行情",
                 )
             whole_quotes = await self.router.query_multi(raw_args.strip(), llm_resolver=llm_resolver)
             if whole_quotes:
@@ -285,6 +293,8 @@ class FxMarketPlugin(Star):
                     whole_quotes,
                     color_style=self._get_color_style(),
                     show_source=self._get_show_source(),
+                    output_format=self._get_output_format(),
+                    title="实时行情",
                 )
             return f"未查到标的「{raw_args.strip()}」的行情信息。"
 
@@ -298,9 +308,23 @@ class FxMarketPlugin(Star):
             quotes,
             color_style=self._get_color_style(),
             show_source=self._get_show_source(),
+            output_format=self._get_output_format(),
+            title="实时行情",
         )
 
     def _build_help(self, kw: str) -> str:
+        if self._get_output_format() != "plain":
+            return (
+                f"### 📈 行情助手指令说明（前缀：`{kw}`）\n\n"
+                "| 指令 | 说明 | 示例 |\n"
+                "| :--- | :--- | :--- |\n"
+                f"| `{kw}` | 查看当前自选清单 24h 行情 | `{kw}` |\n"
+                f"| `{kw} <标的>` | 查询加密/A股/港股/美股/指数 | `{kw} btc` / `{kw} btc合约` / `{kw} 标普500` / `{kw} aapl` |\n"
+                f"| `{kw} 添加 <标的...>` | 批量加入自选（默认现货，无现货自动降级合约） | `{kw} 添加 BTC ETH` |\n"
+                f"| `{kw} 移除 <标的...>` | 批量移出自选 | `{kw} 移除 BTC` |\n"
+                f"| `{kw} 帮助` | 查看帮助说明（支持 `{kw} help`） | `{kw} 帮助` |\n\n"
+                f"> 💡 AI 辅助：机械接口未命中且已选 LLM Provider 时，支持「`{kw} 数字黄金`」「`{kw} 美股七巨头`」等模糊/合集识别"
+            )
         return (
             f"📈 行情助手指令说明（当前前缀：{kw}）\n"
             f"• {kw} — 查看当前自选清单 24h 行情\n"
