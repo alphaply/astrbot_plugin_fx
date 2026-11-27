@@ -24,6 +24,12 @@
     "default": ["BTC", "标普500", "纳斯达克", "沪深300", "恒生指数", "日经225", "富时100"],
     "hint": "首次使用时自动初始化的默认自选标的列表"
   },
+  "max_watchlist_size": {
+    "description": "自选清单数量上限",
+    "type": "int",
+    "default": 20,
+    "hint": "单个自选清单最多保存的标的数量，设为 0 表示不限制"
+  },
   "watchlist_scope": {
     "description": "自选清单隔离粒度",
     "type": "string",
@@ -46,6 +52,20 @@
     ],
     "default": "cn",
     "hint": "支持国内红涨绿跌与美股/币圈绿涨红跌切换"
+  },
+  "change_icon_style": {
+    "description": "涨跌指示图标风格",
+    "type": "string",
+    "options": ["circle", "square", "arrow", "trend", "none"],
+    "labels": [
+      "圆点 (🔴 / 🟢，随红绿风格切换)",
+      "方块 (🟥 / 🟩，对齐更整齐，随红绿风格切换)",
+      "极简三角 (▲ / ▼，纯字符最省宽度)",
+      "走势折线 (📈 / 📉)",
+      "仅正负号 (+1.23% / -1.59%，极简)"
+    ],
+    "default": "circle",
+    "hint": "可自由切换涨跌幅前的视觉图标；圆点/方块会跟随「涨跌颜色风格」自动切换红绿"
   },
   "show_source": {
     "description": "显示行情数据来源",

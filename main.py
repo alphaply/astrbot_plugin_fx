@@ -101,6 +101,17 @@ class FxMarketPlugin(Star):
         fmt = str(self.config.get("output_format") or "plain").strip().lower()
         return fmt if fmt in ("plain", "markdown_table", "markdown_list") else "plain"
 
+    def _get_icon_style(self) -> str:
+        icon = str(self.config.get("change_icon_style") or "circle").strip().lower()
+        return icon if icon in ("circle", "square", "arrow", "trend", "none") else "circle"
+
+    def _get_max_watchlist_size(self) -> int:
+        try:
+            val = int(self.config.get("max_watchlist_size", 20))
+            return max(0, val)
+        except (TypeError, ValueError):
+            return 20
+
     def _get_scope_key(self, event: AstrMessageEvent) -> str:
         scope = str(self.config.get("watchlist_scope") or "user").strip().lower()
         if scope == "global":
@@ -191,6 +202,7 @@ class FxMarketPlugin(Star):
             show_source=self._get_show_source(),
             output_format=self._get_output_format(),
             title="自选行情",
+            icon_style=self._get_icon_style(),
         )
 
     async def _handle_add(self, event: AstrMessageEvent, raw_targets: str) -> str:
@@ -228,10 +240,16 @@ class FxMarketPlugin(Star):
                 failed = []
 
         scope_key = self._get_scope_key(event)
+        max_size = self._get_max_watchlist_size()
         added: list[WatchlistItem] = []
         duplicates: list[WatchlistItem] = []
+        rejected_limit: list[WatchlistItem] = []
         if valid_items:
-            added, duplicates = self.storage.add_items(scope_key, valid_items)
+            added, duplicates, rejected_limit = self.storage.add_items(
+                scope_key,
+                valid_items,
+                max_size=max_size,
+            )
 
         lines: list[str] = []
         if added:
@@ -242,6 +260,9 @@ class FxMarketPlugin(Star):
         if duplicates:
             dup_labels = [format_label(i.display_name, i.market, i.contract_type) for i in duplicates]
             lines.append(f"• 已在自选中: {', '.join(dup_labels)}")
+        if rejected_limit:
+            rej_labels = [format_label(i.display_name, i.market, i.contract_type) for i in rejected_limit]
+            lines.append(f"⚠️ 已达自选上限（{max_size}个），未添加: {', '.join(rej_labels)}")
         if failed:
             lines.append(f"⚠️ 未找到标的: {', '.join(failed)}")
         return "\n".join(lines) if lines else "未添加任何标的。"
@@ -286,6 +307,7 @@ class FxMarketPlugin(Star):
                     show_source=self._get_show_source(),
                     output_format=self._get_output_format(),
                     title="实时行情",
+                    icon_style=self._get_icon_style(),
                 )
             whole_quotes = await self.router.query_multi(raw_args.strip(), llm_resolver=llm_resolver)
             if whole_quotes:
@@ -295,6 +317,7 @@ class FxMarketPlugin(Star):
                     show_source=self._get_show_source(),
                     output_format=self._get_output_format(),
                     title="实时行情",
+                    icon_style=self._get_icon_style(),
                 )
             return f"未查到标的「{raw_args.strip()}」的行情信息。"
 
@@ -310,6 +333,7 @@ class FxMarketPlugin(Star):
             show_source=self._get_show_source(),
             output_format=self._get_output_format(),
             title="实时行情",
+            icon_style=self._get_icon_style(),
         )
 
     def _build_help(self, kw: str) -> str:

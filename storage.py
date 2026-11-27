@@ -137,7 +137,8 @@ class WatchlistStorage:
         self,
         scope_key: str,
         new_items: list[WatchlistItem],
-    ) -> tuple[list[WatchlistItem], list[WatchlistItem]]:
+        max_size: int = 0,
+    ) -> tuple[list[WatchlistItem], list[WatchlistItem], list[WatchlistItem]]:
         all_data = self._load_all()
         if scope_key not in all_data:
             existing = self._build_default_items()
@@ -151,11 +152,15 @@ class WatchlistStorage:
         existing_keys = {item.unique_key() for item in existing}
         added: list[WatchlistItem] = []
         duplicates: list[WatchlistItem] = []
+        rejected_limit: list[WatchlistItem] = []
 
         for item in new_items:
             key = item.unique_key()
             if key in existing_keys:
                 duplicates.append(item)
+                continue
+            if max_size > 0 and len(existing) >= max_size:
+                rejected_limit.append(item)
                 continue
             existing.append(item)
             existing_keys.add(key)
@@ -163,7 +168,7 @@ class WatchlistStorage:
 
         all_data[scope_key] = [item.to_dict() for item in existing]
         self._save_all(all_data)
-        return added, duplicates
+        return added, duplicates, rejected_limit
 
     def remove_items(
         self,

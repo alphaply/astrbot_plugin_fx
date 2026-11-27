@@ -48,8 +48,10 @@
 | `enable_llm_fallback` | `true` | 机械接口查不到时是否启用 LLM 辅助识别 |
 | `llm_provider_id` | `""` | 通过下拉框选择 AstrBot 中已配置的 LLM Provider（留空则不调用 LLM） |
 | `default_watchlist` | `["BTC", "标普500", "纳斯达克", "沪深300", "恒生指数", "日经225", "富时100"]` | 新用户首次访问时自动初始化的默认自选标的 |
+| `max_watchlist_size` | `20` | 单个自选清单最多保存的标的数量（设为 `0` 表示不限制） |
 | `watchlist_scope` | `user` | 自选隔离粒度：`user`（按用户跨群全局同步）/ `session`（按会话独立）/ `global`（全机器人共享） |
-| `color_style` | `cn` | 涨跌颜色风格：`cn`（红涨绿跌 `🔴涨 🟢跌`）/ `us`（绿涨红跌 `🟢涨 🔴跌`） |
+| `color_style` | `cn` | 涨跌颜色风格：`cn`（红涨绿跌）/ `us`（绿涨红跌） |
+| `change_icon_style` | `circle` | 涨跌指示图标：`circle`（🔴/🟢）/ `square`（🟥/🟩）/ `arrow`（▲/▼）/ `trend`（📈/📉）/ `none`（仅正负号） |
 | `show_source` | `true` | 是否在每条行情末尾附加数据来源标注（如 `[OKX]`、`[东财]`） |
 | `output_format` | `plain` | 消息输出格式：`plain`（纯文本紧凑）/ `markdown_list`（Markdown 列表卡片，推荐 QQ 手机端）/ `markdown_table`（3列精简表格，来源置底） |
 | `proxy` | `""` | 可选 HTTP/HTTPS 代理（如 `http://127.0.0.1:7890`） |
